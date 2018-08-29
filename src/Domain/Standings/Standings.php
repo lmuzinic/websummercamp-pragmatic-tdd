@@ -57,17 +57,8 @@ class Standings
     public function getStandings()
     {
         foreach ($this->matches as $match) {
-            if (!isset($this->teamStandings[spl_object_hash($match->getHomeTeam())])) {
-                $this->teamStandings[spl_object_hash($match->getHomeTeam())] = TeamStanding::create($match->getHomeTeam());
-            }
-
-            $homeTeamStanding = $this->teamStandings[spl_object_hash($match->getHomeTeam())];
-
-            if (!isset($this->teamStandings[spl_object_hash($match->getAwayTeam())])) {
-                $this->teamStandings[spl_object_hash($match->getAwayTeam())] = TeamStanding::create($match->getAwayTeam());
-            }
-
-            $awayTeamStanding =  $this->teamStandings[spl_object_hash($match->getAwayTeam())];
+            $homeTeamStanding = $this->getHomeTeamStanding($match);
+            $awayTeamStanding = $this->getAwayTeamStanding($match);
 
             // Home team won
             if ($match->getHomeTeamPoints() > $match->getAwayTeamPoints()) {
@@ -110,5 +101,33 @@ class Standings
         }
 
         return $finalStandings;
+    }
+
+    /**
+     * @param $match
+     * @return TeamStanding
+     */
+    private function getHomeTeamStanding(Match $match): TeamStanding
+    {
+        if (!isset($this->teamStandings[md5($match->getHomeTeam()->getName())])) {
+            $this->teamStandings[md5($match->getHomeTeam()->getName())] = TeamStanding::create($match->getHomeTeam());
+        }
+
+        $homeTeamStanding = $this->teamStandings[md5($match->getHomeTeam()->getName())];
+        return $homeTeamStanding;
+    }
+
+    /**
+     * @param $match
+     * @return TeamStanding
+     */
+    private function getAwayTeamStanding(Match $match): TeamStanding
+    {
+        if (!isset($this->teamStandings[md5($match->getAwayTeam()->getName())])) {
+            $this->teamStandings[md5($match->getAwayTeam()->getName())] = TeamStanding::create($match->getAwayTeam());
+        }
+
+        $awayTeamStanding = $this->teamStandings[md5($match->getAwayTeam()->getName())];
+        return $awayTeamStanding;
     }
 }
