@@ -6,6 +6,7 @@ namespace BallGame\Domain\Standings;
 
 
 use BallGame\Domain\Match\Match;
+use BallGame\Domain\RuleBook\RuleBookInterface;
 
 class Standings
 {
@@ -25,11 +26,17 @@ class Standings
     private $name;
 
     /**
+     * @var RuleBookInterface
+     */
+    private $ruleBook;
+
+    /**
      * @param string $name
      */
-    private function __construct(string $name)
+    private function __construct(string $name, RuleBookInterface $ruleBook)
     {
         $this->name = $name;
+        $this->ruleBook = $ruleBook;
     }
 
     /**
@@ -44,9 +51,9 @@ class Standings
      * @param string $name
      * @return Standings
      */
-    public static function create(string $name): Standings
+    public static function create(string $name, RuleBookInterface $ruleBook): Standings
     {
-        return new self($name);
+        return new self($name, $ruleBook);
     }
 
     public function record(Match $match)
@@ -77,18 +84,7 @@ class Standings
             $awayTeamStanding->recordPointsAgainst($match->getHomeTeamPoints());
         }
 
-        uasort($this->teamStandings, function (TeamStanding $teamA, TeamStanding $teamB)
-        {
-            if ($teamA->getPoints() > $teamB->getPoints()) {
-                return -1;
-            }
-
-            if ($teamB->getPoints() > $teamA->getPoints()) {
-                return 1;
-            }
-
-            return 0;
-        });
+        uasort($this->teamStandings, [$this->ruleBook, 'decide']);
 
         $finalStandings = [];
         foreach ($this->teamStandings as $teamStanding) {
