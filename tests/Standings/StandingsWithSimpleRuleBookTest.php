@@ -4,11 +4,12 @@ declare(strict_types=1);
 namespace BallGame\Tests\Standings;
 
 use BallGame\Domain\Match\Match;
+use BallGame\Domain\RuleBook\SimpleRuleBook;
 use BallGame\Domain\Standings\Standings;
 use BallGame\Domain\Team\Team;
 use PHPUnit\Framework\TestCase;
 
-class StandingsTest extends TestCase
+class StandingsWithSimpleRuleBookTest extends TestCase
 {
     /**
      * @var Standings
@@ -17,7 +18,8 @@ class StandingsTest extends TestCase
 
     protected function setUp()
     {
-        $this->standings = Standings::create('League 2018');
+        $ruleBook = new SimpleRuleBook();
+        $this->standings = Standings::create('League 2018', $ruleBook);
     }
 
     public function testGetStandingsReturnsSortedLeagueStandings()
